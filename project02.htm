@@ -1,0 +1,189 @@
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <link rel="stylesheet" href="../standard.css" type="text/css">
+    <link rel="stylesheet" href="../cpp.css" type="text/css">
+    <title>Comp 431 Project</title>
+    <script type="text/javascript" src="/gfoust/sh/scripts/shCore.js"></script>
+    <script type="text/javascript" src="/gfoust/sh/scripts/shBrushJScript.js"></script>
+    <script type="text/javascript" src="/gfoust/sh/scripts/shBrushXml.js"></script>
+    <script type="text/javascript">
+      SyntaxHighlighter.defaults.gutter = false;
+      SyntaxHighlighter.all();
+    </script>
+    <link type="text/css" rel="stylesheet" href="/gfoust/sh/styles/shCore.css"/>
+    <link type="text/css" rel="stylesheet" href="/gfoust/sh/styles/shThemeFoust.css"/>
+    <style type="text/css">
+      table { margin-left: 30px; }
+      table td
+      {
+        font-family: "Courier New",monospace;
+        vertical-align: top;
+      }
+    </style>
+    <base target="_top" />
+  </head>
+  <body>
+    <h3>Overview</h3>
+    <p>You are to create a &ldquo;cloud&rdquo; server, able to store and
+      retrieve files.  Files will be stored to a special directory in your
+      application.  Users may browse the files uploaded, view or download the
+      files, and upload new files.</p>
+    <h3>Details</h3>
+    <ul class="spaced">
+      <li>
+        Have one directory in your project which is used to store uploaded
+        files.  You should create a property named <code>cloudDirectory</code>
+        in your <code>lib/config</code> module which gives the name of the
+        directory to use.
+      </li>
+      <li>
+        The root URL for your cloud component should be: <code>/cloud</code>
+        However, your component should not make assumptions about where it is
+        mounted.
+      </li>
+      <li>Any extra path info in the URL should be used to specify the
+        particular file being requested.  For example, assume the directory
+        containing your files is <code>./dir</code>.  Then URLs would map to
+        files like so:
+        <table cellpadding="6" cellspacing="1" border="1">
+          <tr>
+            <th>URL</th>
+            <th>Actual File</th>
+          </tr>
+          <tr>
+            <td>/cloud/</td>
+            <td>./dir/</td>
+          </tr>
+          <tr>
+            <td>/cloud/hello.txt</td>
+            <td>./dir/hello.txt</td>
+          </tr>
+          <tr>
+            <td>/cloud/subdir/</td>
+            <td>./dir/subdir/</td>
+          </tr>
+          <tr>
+            <td>/cloud/subdir/goodbye.html</td>
+            <td>./dir/subdir/goodbye.html</td>
+          </tr>
+        </table>
+      </li>
+      <li>
+        If the URL does not map to an actual file or directory, return an
+        error page with a 404 status code.
+      </li>
+      <li>
+        Do not allow a "/../" in the URL&mdash;such a URL might map to file
+        outside the directory we are sharing
+      </li>
+      <li>
+        If the URL maps to a file, there are two ways to access that file: you
+        can view the file or download the file.  The default will be to view
+        the file.  However, if the query string contains a parameter
+        named <code>download</code> (regardless of the value) then you should
+        download the file.
+        <p>
+          For example, the following URLs would <em>all</em> result in
+          downloading the file
+        </p>
+        <pre>
+/cloud/file.html?download=yes
+/cloud/file.html?download=no
+/cloud/file.html?download
+</pre>
+      </li>
+      <li>
+        When viewing a file, always give a
+        full <code>Content-Disposition</code> header (including file name),
+        even if it the value is <code>inline</code>.
+      </li>
+      <li>
+        You may <em>not</em> use <code>express.static</code> to provide access
+        to these files.  However, you may use <code>res.sendFile()</code>
+        or <code>res.download()</code> to send the actual file contents.
+      </li>
+      <li>
+        If the URL maps to a directory it should end with a forward slash
+        (<code>/</code>).  If it does not, you should redirect them with
+        a <code>307</code> to the <em>exact</em> same URL but with the forward
+        slash on the end.  You can use <code>req.path</code> to see the url
+        requested relative to the mount point.  (Warning: <code>req.url</code>
+        will include the query string.)
+        <p>
+          Be careful of the root URL (i.e., <code>/cloud</code>) because
+          Express will lie and give the path as <code>/</code>.  You will have
+          to check <code>req.originalUrl</code> to see if there is really a
+          slash in it.
+        </p>
+        <p>
+          Remember to use <code>req.baseUrl</code> instead of assuming your
+          mount point.
+        </p>
+      </li>
+      <li>
+        If the URL maps to a directory, you should show a web page that lists
+        all the files and subdirectories in the directory.  There should be
+        links to view and save each of the files, and to view each of the
+        directories.
+      </li>
+      <li>
+        There must be some visual cue to distinguish files from directories.
+        Also, you should not be able to download directories.
+      </li>
+      <li>
+        Do not make any assumptions about file names.  A file name may or may
+        not have an extension.  A directory may or may not have an extension.
+      </li>
+    </ul>
+    <h3>Your code</h3>
+    <ul class="spaced">
+      <li>
+        You should write your project in TypeScript.  I should be able to
+        delete all JavaScript code and recompile it from TypeScript.
+      </li>
+      <li>Use the project layout discussed in class.
+        <ul>
+          <li>A <code>/lib/config</code> module containing configuration
+            information</li>
+          <li>A <code>/lib/app</code> module which exports your application
+            under the name <code>app</code></li>
+          <li>A <code>/lib/app/cloud</code> module which exports the router
+            under the name <code>router</code></li>
+        </ul>
+      </li>
+      <li>Store <em>all</em> configuration information in
+        your <code>config</code> module.  (If you can imagine someone wanting
+        to change it for some reason, it should be configurable.)</li>
+      <li>Use a Handlebars templates to generate any HTML pages needed.</li>
+      <li>Each file should have a comment at the top explaining what the file
+        is and what (if anything) it exports.</li>
+      <li>Use comments to improve the readability of your code:  highlight
+        sections, explain major points, etc.</li>
+      <li>Use comments to explain anything you think I need to know to
+        understand your code.</li>
+      <li>Assume I understand all material discussed in class.</li>
+      <li>Be direct and to the point.</li>
+    </ul>
+    <h3>Your README file</h3>
+    <ul class="spaced">
+      <li>You must have a README file in the root directory of your project.</li>
+      <li>Give the name of the project and the names of all who worked on
+        it.</li>
+      <li>List any resources used, and explain how they were used.</li>
+      <li>Give any special instructions needed to use your program.  Assume
+        that I already know all the information contained in this document.</li>
+      <li>
+        Explain any weaknesses in your project.  These could be things you
+        couldn't get working, things that were necessarily simplified for this
+        project, things that you would do differently if you had more time,
+        etc.
+      </li>
+      <li>
+        Explain any strengths in your project.  Be sure to highlight any way
+        you went beyond the requirements.
+      </li>
+      <li>Be direct and to the point.</li>
+    </ul>
+  </body>
+</html>
