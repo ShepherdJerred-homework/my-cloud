@@ -2,7 +2,7 @@
   "extends": "./config/tsconfig.strict",
   "compilerOptions": {
     "target": "es6",
-    "outDir": "build/main",
+    "outDir": "lib",
     "rootDir": "src",
     "moduleResolution": "node",
     "module": "commonjs",
