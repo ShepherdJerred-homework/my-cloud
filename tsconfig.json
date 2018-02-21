@@ -9,7 +9,7 @@
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitAny" : true,
+    "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
@@ -20,15 +20,19 @@
     "listFiles": false,
     "traceResolution": false,
     "pretty": true,
-    "lib" : [
+    "lib": [
       "es6"
     ],
-    "types" : [
+    "types": [
       "node"
     ],
-    "baseUrl": ".", // required for "paths"
+    "baseUrl": ".",
+    // required for "paths"
     "paths": {
-      "typescript-starter": ["src/index.ts"] // write tests without relative paths
+      "typescript-starter": [
+        "src/index.ts"
+      ]
+      // write tests without relative paths
     }
   },
   "include": [
