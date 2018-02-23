@@ -2,12 +2,13 @@
   "name": "my-cloud",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/app/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "watch": "tsc -w -p tsconfig.json",
     "lint": "tslint -t stylish --project \"tsconfig.json\"",
-    "test": "mocha"
+    "test": "mocha",
+    "start": "node lib/app/server"
   },
   "repository": {
     "type": "git",
