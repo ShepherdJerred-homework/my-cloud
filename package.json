@@ -1,7 +1,7 @@
 {
   "name": "my-cloud",
   "version": "1.0.0",
-  "description": "",
+  "description": "Upload and download files to/from a server with Express and TypeScript",
   "main": "lib/app/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
