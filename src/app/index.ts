@@ -11,4 +11,6 @@ app.set('view engine', 'hbs');
 
 app.use(morgan('dev'));
 
+app.use(express.static(__dirname + '../../../static'));
+
 app.use('/cloud', cloud.router);

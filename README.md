@@ -6,11 +6,11 @@ Clone the project and build the project with `npm run build`
 After building, run the project with `npm run start`
 
 ## Scripts
-* ```npm run build```:
-* ```npm run watch```:
-* ```npm run lint```:
-* ```npm run test```:
-* ```npm run start```:
+* ```npm run build```: compile the project into JavaScript
+* ```npm run watch```: watch for changes to source and compile
+* ```npm run lint```: run tslint against source
+* ```npm run test```: run mocha test cases
+* ```npm run start```: run the express web server
 
 ## Folder Structure
 ```bash
@@ -30,6 +30,6 @@ After building, run the project with `npm run start`
     └── index.hbs
 ```
 
-# Strengths
+## Strengths
 
-# Caveats
+## Weaknesses

@@ -3,6 +3,8 @@ import * as controller from './controller';
 
 export const router: express.Router = express.Router();
 
-router.get('/*', controller.getFile);
+router.use(['/', '/*'], controller.fixUrl);
 
-router.post('/*', controller.uploadFile);
+router.get(['/', '/*'], controller.getFile);
+
+router.post(['/', '/*'], controller.uploadFile);

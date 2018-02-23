@@ -1,4 +1,4 @@
-export let cloudDirectory: string = 'cloudDirectory';
+export let cloudDirectory: string = '/Users/jerred/IdeaProjects/my-cloud/cloud/';
 export let serverPort: number;
 
 if (process.env.PORT) {
