@@ -1,6 +1,8 @@
 # My Cloud
 Upload and download files to/from a server with Express and TypeScript
 
+![Screenshot of the interface](https://i.imgur.com/3aVjRJG.png)
+
 ## Contributers
 * Jerred Shepherd
 
