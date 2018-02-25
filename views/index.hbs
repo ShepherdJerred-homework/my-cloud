@@ -16,7 +16,8 @@
                         {{else}}
                             <i class="fa fa-file-o"></i>
                         {{/if}}
-                        <a href="{{ this.cloudUrlPath }}">{{ this.name }}</a> {{#unless this.isDirectory}}<a href="{{ this.cloudUrlPath }}?download">(download)</a>{{/unless}}
+                        <a href="{{ this.cloudUrlPath }}">{{ this.name }}</a> {{#unless this.isDirectory}}
+                        <a href="{{ this.cloudUrlPath }}?download">(download)</a>{{/unless}}
                     </div>
                 {{/each}}
             {{else}}
@@ -24,9 +25,9 @@
             {{/if}}
         </div>
         <div class="column is-one-quarter">
-            <form>
+            <form action="{{ this.cloudPath }}" method="post" enctype="multipart/form-data">
                 Upload a file
-                <input type="file" name="file"/>
+                <input type="file" name="uploadFile"/>
                 <input type="submit" name="action" value="Upload"/>
             </form>
         </div>

@@ -16,7 +16,9 @@ import { readdir, stat } from '../asyncFs';
  * @returns {Promise<void>}
  */
 export async function getFile (req: express.Request, res: express.Response, next: express.NextFunction) {
-  let path: string = config.cloudDirectory + req.path.substring(1);
+  let path: string = config.cloudDirectory + decodeURI(req.path.substring(1));
+
+  console.log(path);
 
   try {
     let stats: fs.Stats = await stat(path);
@@ -37,7 +39,12 @@ export async function getFile (req: express.Request, res: express.Response, next
  * @param {e.NextFunction} next
  */
 export function uploadFile (req: express.Request, res: express.Response, next: express.NextFunction) {
-  res.send('Hey there');
+  let absoluteFilePath: string = req.file.path;
+  let destinationPath: string = config.cloudDirectory + decodeURI(req.path) + req.file.originalname;
+  fs.rename(absoluteFilePath, destinationPath, () => {
+    //
+  });
+  res.redirect(303, req.originalUrl);
 }
 
 /**
@@ -52,10 +59,12 @@ async function handleDirectory (req: express.Request, res: express.Response, nex
     res.redirect(307, req.originalUrl + '/');
   } else {
     try {
-      let cloudFiles: CloudFileInfo[] = await getFiles(req.baseUrl, req.path);
+      let cloudFiles: CloudFileInfo[] = await getFiles(req.baseUrl, decodeURI(req.path));
+
       res.render('index', {
-        path: req.path,
-        pathName: req.path === '/' ? 'Index' : req.path,
+        path: decodeURI(req.path),
+        cloudPath: req.baseUrl + decodeURI(req.path),
+        pathName: req.path === '/' ? 'Index' : decodeURI(req.path),
         files: cloudFiles
       });
     } catch (e) {
@@ -71,8 +80,8 @@ async function handleDirectory (req: express.Request, res: express.Response, nex
  * @param {e.NextFunction} next
  */
 function handleFile (req: express.Request, res: express.Response, next: express.NextFunction) {
-  let file: string = config.cloudDirectory + req.path.substring(1);
-  let fileName: string = req.path.substring(1);
+  let file: string = config.cloudDirectory + decodeURI(req.path.substring(1));
+  let fileName: string = decodeURI(req.path.substring(1));
 
   if (req.query.hasOwnProperty('download')) {
     res.setHeader('Content-Disposition', 'attachment; filename=' + fileName);
