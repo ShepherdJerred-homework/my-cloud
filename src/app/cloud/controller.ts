@@ -1,56 +1,85 @@
 import * as config from '../../config';
 import * as express from 'express';
 import * as fs from 'fs';
-
-export async function fixUrl (req: express.Request, res: express.Response, next: express.NextFunction) {
-  let stats: fs.Stats = await stat(config.cloudDirectory);
-
-  if (stats.isDirectory() && req.path.substring(req.path.length - 1) !== '/') {
-    res.redirect(307, req.baseUrl + req.url + '/');
-  } else {
-    next();
-  }
-}
+import { CloudFileInfo } from './model';
 
 export async function getFile (req: express.Request, res: express.Response, next: express.NextFunction) {
-  let files: CloudFileInfo[] = await getFiles(req.path, req.baseUrl);
-  console.log(req.path);
-  res.render('index', {
-    path: req.path,
-    pathName: req.path === '/' ? 'Index' : req.path,
-    files: files
-  });
+  let path: string = config.cloudDirectory + req.path.substring(1);
+
+  try {
+    let stats: fs.Stats = await stat(path);
+    if (stats.isDirectory()) {
+      await handleDirectory(req, res, next);
+    } else {
+      handleFile(req, res, next);
+    }
+  } catch (e) {
+    res.sendStatus(404);
+  }
 }
 
 export function uploadFile (req: express.Request, res: express.Response, next: express.NextFunction) {
   res.send('Hey there');
 }
 
-class CloudFileInfo {
-  name: string;
-  directory: boolean;
-  absolutePath: string;
-  cloudPath: string;
-  cloudUrl: string;
-
-  constructor (name: string, directory: boolean, absolutePath: string, cloudPath: string, cloudUrl: string) {
-    this.name = name;
-    this.directory = directory;
-    this.absolutePath = absolutePath;
-    this.cloudPath = cloudPath;
-    this.cloudUrl = cloudUrl;
+/**
+ * Redirects a request with a trailing slash if one is not already present
+ * @param {e.Request} req
+ * @param {e.Response} res
+ * @param {e.NextFunction} next
+ */
+function fixPath (req: express.Request, res: express.Response, next: express.NextFunction) {
+  if (req.originalUrl.slice(-1) !== '/') {
+    res.redirect(307, req.originalUrl + '/');
   }
 }
 
-async function getFiles (path: string, cloudUrl: string): Promise<CloudFileInfo[]> {
-  let files: CloudFileInfo[] = [];
-  let absolutePath: string = config.cloudDirectory + path;
-  let filesInPath: string[] = await readdir(absolutePath);
+/**
+ * Lists files in the directory
+ * @param {e.Request} req
+ * @param {e.Response} res
+ * @param {e.NextFunction} next
+ * @returns {Promise<void>}
+ */
+async function handleDirectory (req: express.Request, res: express.Response, next: express.NextFunction) {
+  fixPath(req, res, next);
 
-  for (let fileName of filesInPath) {
+  let cloudFiles: CloudFileInfo[] = await getFiles(req.baseUrl, req.path);
+  res.render('index', {
+    path: req.path,
+    pathName: req.path === '/' ? 'Index' : req.path,
+    files: cloudFiles
+  });
+}
+
+/**
+ * Sends a file to the client
+ * @param {e.Request} req
+ * @param {e.Response} res
+ * @param {e.NextFunction} next
+ */
+function handleFile (req: express.Request, res: express.Response, next: express.NextFunction) {
+  let file: string = config.cloudDirectory + req.path.substring(1);
+  let fileName: string = req.path.substring(1);
+  console.log(file);
+  if (req.query.hasOwnProperty('download')) {
+    res.download(file);
+  } else {
+    res.setHeader('Content-Disposition', 'inline; filename=' + fileName);
+    res.sendFile(file);
+  }
+}
+
+async function getFiles (cloudUrlBase: string, pathOffset: string): Promise<CloudFileInfo[]> {
+  let files: CloudFileInfo[] = [];
+  let absolutePath: string = config.cloudDirectory + pathOffset;
+  let fileNamesInPath: string[] = await readdir(absolutePath);
+
+  for (let fileName of fileNamesInPath) {
     let absolutePathToFile: string = absolutePath + fileName;
     let fileStat: fs.Stats = await stat(absolutePathToFile);
-    let cloudFileInfo: CloudFileInfo = new CloudFileInfo(fileName, fileStat.isDirectory(), absolutePath + fileName, fileName,cloudUrl + path + fileName);
+    let cloudUrlPath: string = cloudUrlBase + pathOffset + fileName;
+    let cloudFileInfo: CloudFileInfo = new CloudFileInfo(fileName, fileStat.isDirectory(), absolutePath + fileName, fileName, cloudUrlPath);
     files.push(cloudFileInfo);
   }
 

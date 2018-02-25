@@ -3,23 +3,31 @@
 <link rel="stylesheet" href="/bulma.css">
 <link rel="stylesheet" href="/font-awesome.min.css">
 
-<p>Current directory: {{ this.pathName }}
+<div class="container">
+    <div class="columns">
+        <div class="column is-full">
+        <p>Current directory: {{ this.pathName }}
 
-{{#if this.files}}
-    {{#each this.files}}
-        <div>
-            <a href="{{ this.cloudUrl }}">{{ this.name }}</a>
-            {{ this.cloudPath }}<br>
-            {{ this.absolutePath }}<br>
-            <br><br>
+            {{#if this.files}}
+                {{#each this.files}}
+                    <div>
+                        {{#if this.isDirectory}}
+                            <i class="fa fa-folder"></i>
+                        {{else}}
+                            <i class="fa fa-file"></i>
+                        {{/if}}
+                        <a href="{{ this.cloudUrlPath }}">{{ this.name }}</a>
+                    </div>
+                {{/each}}
+            {{else}}
+                <p>There are no files in this directory</p>
+            {{/if}}
+
+            <form>
+                Upload a file
+                <input type="file" name="file"/>
+                <input type="submit" name="action" value="Upload"/>
+            </form>
         </div>
-    {{/each}}
-{{else}}
-    <p>There are no files in this directory</p>
-{{/if}}
-
-<form>
-    Upload a file
-    <input type="file" name="file"/>
-    <input type="submit" name="action" value="Upload"/>
-</form>
+    </div>
+</div>
