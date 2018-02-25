@@ -1,3 +1,8 @@
+/**
+ * Exports an Express router object that accepts GET and POST requests on the root path
+ * The paths allow viewing and uploading files
+ */
+
 import * as express from 'express';
 import * as controller from './controller';
 import * as multer from 'multer';

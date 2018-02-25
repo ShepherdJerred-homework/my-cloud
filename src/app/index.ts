@@ -1,3 +1,7 @@
+/**
+ * Exports the Express application
+ */
+
 import * as express from 'express';
 import * as expressHandlebars from 'express-handlebars';
 import * as morgan from 'morgan';
