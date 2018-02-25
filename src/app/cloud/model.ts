@@ -1,3 +1,7 @@
+/**
+ * Exports a model that represents a file on the cloud server
+ */
+
 export class CloudFileInfo {
   name: string;
   isDirectory: boolean;

@@ -1,8 +1,20 @@
+/**
+ * Exports two functions, getFile and uploadFile, that are controllers intended to be used with an Express router.
+ */
+
 import * as config from '../../config';
 import * as express from 'express';
 import * as fs from 'fs';
 import { CloudFileInfo } from './model';
+import { readdir, stat } from '../asyncFs';
 
+/**
+ * List directory contents or display a file based on the request path
+ * @param {e.Request} req
+ * @param {e.Response} res
+ * @param {e.NextFunction} next
+ * @returns {Promise<void>}
+ */
 export async function getFile (req: express.Request, res: express.Response, next: express.NextFunction) {
   let path: string = config.cloudDirectory + req.path.substring(1);
 
@@ -18,20 +30,14 @@ export async function getFile (req: express.Request, res: express.Response, next
   }
 }
 
-export function uploadFile (req: express.Request, res: express.Response, next: express.NextFunction) {
-  res.send('Hey there');
-}
-
 /**
- * Redirects a request with a trailing slash if one is not already present
+ * Upload a file to the server
  * @param {e.Request} req
  * @param {e.Response} res
  * @param {e.NextFunction} next
  */
-function fixPath (req: express.Request, res: express.Response, next: express.NextFunction) {
-  if (req.originalUrl.slice(-1) !== '/') {
-    res.redirect(307, req.originalUrl + '/');
-  }
+export function uploadFile (req: express.Request, res: express.Response, next: express.NextFunction) {
+  res.send('Hey there');
 }
 
 /**
@@ -42,14 +48,20 @@ function fixPath (req: express.Request, res: express.Response, next: express.Nex
  * @returns {Promise<void>}
  */
 async function handleDirectory (req: express.Request, res: express.Response, next: express.NextFunction) {
-  fixPath(req, res, next);
-
-  let cloudFiles: CloudFileInfo[] = await getFiles(req.baseUrl, req.path);
-  res.render('index', {
-    path: req.path,
-    pathName: req.path === '/' ? 'Index' : req.path,
-    files: cloudFiles
-  });
+  if (req.originalUrl.slice(-1) !== '/') {
+    res.redirect(307, req.originalUrl + '/');
+  } else {
+    try {
+      let cloudFiles: CloudFileInfo[] = await getFiles(req.baseUrl, req.path);
+      res.render('index', {
+        path: req.path,
+        pathName: req.path === '/' ? 'Index' : req.path,
+        files: cloudFiles
+      });
+    } catch (e) {
+      res.sendStatus(500);
+    }
+  }
 }
 
 /**
@@ -61,15 +73,26 @@ async function handleDirectory (req: express.Request, res: express.Response, nex
 function handleFile (req: express.Request, res: express.Response, next: express.NextFunction) {
   let file: string = config.cloudDirectory + req.path.substring(1);
   let fileName: string = req.path.substring(1);
-  console.log(file);
+
   if (req.query.hasOwnProperty('download')) {
-    res.download(file);
+    res.setHeader('Content-Disposition', 'attachment; filename=' + fileName);
+    res.sendFile(file, {
+      dotfiles: 'allow'
+    });
   } else {
     res.setHeader('Content-Disposition', 'inline; filename=' + fileName);
-    res.sendFile(file);
+    res.sendFile(file, {
+      dotfiles: 'allow'
+    });
   }
 }
 
+/**
+ * Get all of the files in a directory
+ * @param {string} cloudUrlBase
+ * @param {string} pathOffset
+ * @returns {Promise<CloudFileInfo[]>}
+ */
 async function getFiles (cloudUrlBase: string, pathOffset: string): Promise<CloudFileInfo[]> {
   let files: CloudFileInfo[] = [];
   let absolutePath: string = config.cloudDirectory + pathOffset;
@@ -84,28 +107,4 @@ async function getFiles (cloudUrlBase: string, pathOffset: string): Promise<Clou
   }
 
   return files;
-}
-
-function readdir (path: string): Promise<string[]> {
-  return new Promise<string[]>((resolve, reject) => {
-    fs.readdir(path, function (err, files) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(files);
-      }
-    });
-  });
-}
-
-function stat (path: string): Promise<fs.Stats> {
-  return new Promise<fs.Stats>((resolve, reject) => {
-    fs.stat(path, function (err, stats) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(stats);
-      }
-    });
-  });
 }

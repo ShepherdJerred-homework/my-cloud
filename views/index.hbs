@@ -5,8 +5,8 @@
 
 <div class="container">
     <div class="columns">
-        <div class="column is-full">
-        <p>Current directory: {{ this.pathName }}
+        <div class="column is-one-quarter is-offset-one-quarter">
+            <h4 class="title is-4">Current directory: {{ this.pathName }}</h4>
 
             {{#if this.files}}
                 {{#each this.files}}
@@ -14,15 +14,16 @@
                         {{#if this.isDirectory}}
                             <i class="fa fa-folder"></i>
                         {{else}}
-                            <i class="fa fa-file"></i>
+                            <i class="fa fa-file-o"></i>
                         {{/if}}
-                        <a href="{{ this.cloudUrlPath }}">{{ this.name }}</a>
+                        <a href="{{ this.cloudUrlPath }}">{{ this.name }}</a> {{#unless this.isDirectory}}<a href="{{ this.cloudUrlPath }}?download">(download)</a>{{/unless}}
                     </div>
                 {{/each}}
             {{else}}
                 <p>There are no files in this directory</p>
             {{/if}}
-
+        </div>
+        <div class="column is-one-quarter">
             <form>
                 Upload a file
                 <input type="file" name="file"/>
