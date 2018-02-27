@@ -20,15 +20,22 @@ export async function getFile (req: express.Request, res: express.Response, next
 
   console.log(path);
 
-  try {
-    let stats: fs.Stats = await stat(path);
-    if (stats.isDirectory()) {
-      await handleDirectory(req, res, next);
-    } else {
-      handleFile(req, res, next);
+  if (path.indexOf('../') != -1) {
+    console.log(req.baseUrl);
+    console.log(req.url);
+    console.log(req.originalUrl);
+    res.redirect(req.baseUrl);
+  } else {
+    try {
+      let stats: fs.Stats = await stat(path);
+      if (stats.isDirectory()) {
+        await handleDirectory(req, res, next);
+      } else {
+        handleFile(req, res, next);
+      }
+    } catch (e) {
+      res.sendStatus(404);
     }
-  } catch (e) {
-    res.sendStatus(404);
   }
 }
 
